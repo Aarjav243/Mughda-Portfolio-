@@ -152,8 +152,8 @@ img {
 
 @media (max-width: 600px) {
   .intro-svg {
-    width: 140vw; /* Allow it to overflow slightly for better vertical presence on mobile */
-    transform: translateY(40px) translateX(-5vw);
+    width: 100vw; /* Fit to screen width */
+    transform: translateY(20px); /* Center vertically without horizontal shift */
   }
 }
 
