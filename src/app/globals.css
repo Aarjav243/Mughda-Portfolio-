@@ -421,7 +421,7 @@ img {
    ============================================ */
 .hero {
   position: relative;
-  min-height: 100vh;
+  min-height: 90vh;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -591,7 +591,7 @@ img {
    SECTION COMMON
    ============================================ */
 .section {
-  padding: 8rem 2rem;
+  padding: 5rem 2rem;
   position: relative;
 }
 
@@ -1425,7 +1425,7 @@ img {
   }
 
   .section {
-    padding: 5rem 1.25rem;
+    padding: 3rem 1.25rem;
   }
 
   .teaching__grid {
