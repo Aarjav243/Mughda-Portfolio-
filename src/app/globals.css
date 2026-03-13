@@ -150,6 +150,13 @@ img {
   transform: translateY(20px);
 }
 
+@media (max-width: 600px) {
+  .intro-svg {
+    width: 140vw; /* Allow it to overflow slightly for better vertical presence on mobile */
+    transform: translateY(40px) translateX(-5vw);
+  }
+}
+
 .intro-seed {
   animation: seedPulse 1.5s ease-in-out infinite;
   transform-origin: 400px 420px;
@@ -385,8 +392,7 @@ img {
   display: none;
   position: fixed;
   inset: 0;
-  background: rgba(10, 10, 15, 0.95);
-  backdrop-filter: blur(30px);
+  background: var(--bg-primary); /* Beige theme */
   z-index: 1005;
   flex-direction: column;
   align-items: center;
@@ -399,14 +405,15 @@ img {
 }
 
 .nav__mobile-menu a {
-  font-family: var(--font-heading);
-  font-size: 1.5rem;
-  color: var(--text-secondary);
+  font-family: 'Playfair Display', serif;
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: var(--text-primary);
   transition: color var(--transition);
 }
 
 .nav__mobile-menu a:hover {
-  color: var(--accent-orange);
+  color: var(--glow-green);
 }
 
 /* ============================================
@@ -1428,11 +1435,54 @@ img {
   .research__grid {
     grid-template-columns: repeat(2, 1fr);
   }
+
+  /* Handle Causal Pathway on medium screens */
+  .publications__list-wrapper {
+    margin-right: 60px; /* Reduced from 180px */
+  }
+
+  .impact-nodes {
+    right: 5px;
+    gap: 2.5rem;
+  }
+
+  .impact-node__label {
+    display: none; /* Hide labels to save space */
+  }
+}
+
+@media (max-width: 768px) {
+  /* Hide complex SVG connections on small mobile to prevent layout thrashing and scrolling issues */
+  .causal-svg-layer {
+    display: none;
+  }
+
+  .publications__list-wrapper {
+    margin-right: 0;
+  }
+
+  .impact-nodes {
+    position: relative;
+    flex-direction: row;
+    justify-content: center;
+    top: 0;
+    right: 0;
+    margin-top: 2rem;
+    height: auto;
+    width: 100%;
+    gap: 1.5rem;
+  }
 }
 
 @media (max-width: 600px) {
   .hero__title {
-    font-size: clamp(1.8rem, 8vw, 2.8rem);
+    font-size: clamp(2.2rem, 10vw, 3.2rem);
+    line-height: 1.1;
+  }
+
+  .hero__subtitle {
+    font-size: 0.85rem;
+    margin-bottom: 2rem;
   }
 
   .hero__ctas {
@@ -1442,20 +1492,24 @@ img {
 
   .btn {
     width: 100%;
-    max-width: 260px;
+    max-width: 300px;
   }
 
   .research__grid {
-    grid-template-columns: 1fr 1fr;
-    gap: 0.75rem;
+    grid-template-columns: 1fr; /* Single column for better readability */
+    gap: 1rem;
   }
 
   .education__timeline {
-    padding-left: 2rem;
+    padding-left: 1.5rem;
   }
 
   .education__item::before {
-    left: -2rem;
+    left: -1.5rem;
+  }
+
+  .section-title {
+    font-size: 2rem;
   }
 }
 
