@@ -75,30 +75,13 @@ export default function CustomCursor() {
                 duration: 0.3,
             });
 
-            // Magnetic Move
-            const onMagneticMove = (mmE: MouseEvent) => {
-                const mX = mmE.clientX - rect.left - rect.width / 2;
-                const mY = mmE.clientY - rect.top - rect.height / 2;
-
-                gsap.to(target, {
-                    x: mX * 0.2,
-                    y: mY * 0.2,
-                    duration: 0.4,
-                    ease: "power2.out"
-                });
-
-                if (isSmall) {
-                    xToRing(rect.left + rect.width / 2);
-                    yToRing(rect.top + rect.height / 2);
-                }
-            };
-
-            target.addEventListener("mousemove", onMagneticMove as any);
-            (target as any)._magneticMove = onMagneticMove;
+            if (isSmall) {
+                xToRing(rect.left + rect.width / 2);
+                yToRing(rect.top + rect.height / 2);
+            }
         };
 
         const onHoverLeave = (e: Event) => {
-            const target = e.currentTarget as HTMLElement;
             gsap.to(dot, { scale: 1, opacity: 1, duration: 0.3 });
             gsap.to(ring, {
                 scale: 1,
@@ -106,12 +89,6 @@ export default function CustomCursor() {
                 borderColor: "rgba(255, 255, 255, 0.3)",
                 duration: 0.3,
             });
-
-            gsap.to(target, { x: 0, y: 0, shadow: 0, duration: 0.5, ease: "elastic.out(1, 0.3)" });
-
-            if ((target as any)._magneticMove) {
-                target.removeEventListener("mousemove", (target as any)._magneticMove);
-            }
         };
 
         interactiveElements.forEach((el) => {

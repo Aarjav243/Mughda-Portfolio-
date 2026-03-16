@@ -1,17 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import Image from "next/image";
-import { 
-  Linkedin, 
-  Shield, 
-  Droplets, 
-  Gavel, 
-  Stethoscope, 
-  LineChart,
-  Activity
-} from "lucide-react";
-import { SiGooglescholar } from "react-icons/si";
+import { Gavel, Droplets, Shield, Stethoscope, LineChart } from "lucide-react";
 
 /* ── ROOTS & BRANCHES INTRO ANIMATION ── */
 function RootsBranchesIntro({ onComplete }: { onComplete: () => void }) {
@@ -177,24 +168,6 @@ function RootsBranchesIntro({ onComplete }: { onComplete: () => void }) {
   );
 }
 
-/* ── LEAF COMPONENT FOR EDUCATION ── */
-const LeafSVG = ({ className }: { className?: string }) => (
-  <div className={`edu-leaves ${className}`}>
-    {[...Array(4)].map((_, i) => (
-      <svg
-        key={i}
-        className="edu-leaf"
-        width="20"
-        height="20"
-        viewBox="0 0 24 24"
-        fill="currentColor"
-        stroke="none"
-      >
-        <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8a13 13 0 0 1-10 10Z" />
-      </svg>
-    ))}
-  </div>
-);
 
 /* ------------------------------------------------------------------ */
 /* Declare globals loaded via CDN <script> tags                       */
@@ -220,7 +193,7 @@ export default function Home() {
   // Ref for the workshops timeline
   const workshopTimelineRef = useRef<HTMLDivElement>(null);
 
-  const getPath = (paperId: string, nodeId: string, svgRef: React.RefObject<SVGSVGElement>, sectionPrefix: string) => {
+  const getPath = (paperId: string, nodeId: string, svgRef: React.RefObject<SVGSVGElement | null>, sectionPrefix: string) => {
     if (typeof document === 'undefined') return "";
     const paper = document.getElementById(paperId);
     const node = document.getElementById(`${sectionPrefix}-node-${nodeId}`);
@@ -426,7 +399,6 @@ export default function Home() {
       const eduItems = document.querySelectorAll(".education__item");
       eduItems.forEach((item) => {
         const dot = item.querySelector(".edu-dot");
-        const leaves = item.querySelectorAll(".edu-leaf");
 
         gsap.to(dot, {
           scrollTrigger: {
@@ -435,75 +407,15 @@ export default function Home() {
             end: "bottom 35%",
             onEnter: () => {
               dot?.classList.add("active");
-              gsap.fromTo(leaves,
-                { x: 0, y: 0, scale: 0, opacity: 0, rotation: 0 },
-                {
-                  x: (i: number) => {
-                    const angle = (i / 4) * Math.PI * 2;
-                    return Math.cos(angle) * 40;
-                  },
-                  y: (i: number) => {
-                    const angle = (i / 4) * Math.PI * 2;
-                    return Math.sin(angle) * 40 - 20;
-                  },
-                  scale: (i: number) => 0.8 + Math.random() * 0.5,
-                  opacity: 1,
-                  rotation: (i: number) => i * 90 + 45,
-                  duration: 0.8,
-                  stagger: 0.05,
-                  ease: "elastic.out(1, 0.5)",
-                  onComplete: () => {
-                    gsap.to(leaves, {
-                      opacity: 0,
-                      scale: 0.5,
-                      y: "-=30",
-                      duration: 2,
-                      delay: 1.5,
-                      ease: "power1.in"
-                    });
-                  }
-                }
-              );
             },
             onLeaveBack: () => {
               dot?.classList.remove("active");
-              gsap.to(leaves, { opacity: 0, scale: 0, duration: 0.3 });
             },
             onEnterBack: () => {
               dot?.classList.add("active");
-              gsap.fromTo(leaves,
-                { x: 0, y: 0, scale: 0, opacity: 0, rotation: 0 },
-                {
-                  x: (i: number) => {
-                    const angle = (i / 4) * Math.PI * 2;
-                    return Math.cos(angle) * 40;
-                  },
-                  y: (i: number) => {
-                    const angle = (i / 4) * Math.PI * 2;
-                    return Math.sin(angle) * 40 - 20;
-                  },
-                  scale: (i: number) => 0.8 + Math.random() * 0.5,
-                  opacity: 1,
-                  rotation: (i: number) => i * 90 + 45,
-                  duration: 0.8,
-                  stagger: 0.05,
-                  ease: "elastic.out(1, 0.5)",
-                  onComplete: () => {
-                    gsap.to(leaves, {
-                      opacity: 0,
-                      scale: 0.5,
-                      y: "-=30",
-                      duration: 2,
-                      delay: 1.5,
-                      ease: "power1.in"
-                    });
-                  }
-                }
-              );
             },
             onLeave: () => {
               dot?.classList.remove("active");
-              gsap.to(leaves, { opacity: 0, scale: 0, duration: 0.3 });
             },
           }
         });
@@ -716,12 +628,10 @@ export default function Home() {
         });
       });
 
-      /* --- Holographic Tilt for Cards --- */
+      /* --- Holographic Glow for Cards (Tilt Removed) --- */
       const cards = gsap.utils.toArray(".glass-card") as HTMLElement[];
       cards.forEach((card) => {
         const glimmer = card.querySelector(".glimmer-overlay") as HTMLElement;
-        const xTo = gsap.quickTo(card, "rotateX", { duration: 0.4, ease: "power2.out" });
-        const yTo = gsap.quickTo(card, "rotateY", { duration: 0.4, ease: "power2.out" });
         const glimmerX = glimmer ? gsap.quickTo(glimmer, "x", { duration: 0.2 }) : null;
         const glimmerY = glimmer ? gsap.quickTo(glimmer, "y", { duration: 0.2 }) : null;
         const glimmerOpacity = glimmer ? gsap.quickTo(glimmer, "opacity", { duration: 0.2 }) : null;
@@ -730,15 +640,6 @@ export default function Home() {
           const rect = card.getBoundingClientRect();
           const x = e.clientX - rect.left;
           const y = e.clientY - rect.top;
-
-          const centerX = rect.width / 2;
-          const centerY = rect.height / 2;
-
-          const rotateX = (y - centerY) / 10;
-          const rotateY = (centerX - x) / 10;
-
-          xTo(rotateX);
-          yTo(rotateY);
 
           if (glimmer && glimmerX && glimmerY && glimmerOpacity) {
             glimmerOpacity(0.4);
@@ -749,7 +650,6 @@ export default function Home() {
 
         card.addEventListener("mousedown", () => {
           gsap.to(card, {
-            scale: 0.96,
             boxShadow: "0 4px 20px rgba(255, 140, 0, 0.4)",
             duration: 0.2,
             ease: "power2.out",
@@ -761,7 +661,6 @@ export default function Home() {
 
         card.addEventListener("mouseup", () => {
           gsap.to(card, {
-            scale: 1,
             boxShadow: "0 8px 40px rgba(255, 140, 0, 0.12)",
             duration: 0.4,
             ease: "back.out(2)",
@@ -773,9 +672,6 @@ export default function Home() {
 
         card.addEventListener("mouseleave", () => {
           gsap.to(card, {
-            scale: 1,
-            rotateX: 0,
-            rotateY: 0,
             boxShadow: "none",
             duration: 0.5,
             ease: "power2.out",
@@ -975,10 +871,10 @@ export default function Home() {
                 href="https://www.linkedin.com/in/mugdha-kinhikar/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="btn btn--icon btn--outline magnetic"
+                className="btn btn--outline magnetic"
                 title="LinkedIn Profile"
               >
-                <Linkedin size={20} />
+                LinkedIn
               </a>
             </div>
           </div>
@@ -1033,11 +929,10 @@ export default function Home() {
               <div className="education__item">
                 <div className="edu-dot-container">
                   <div className="edu-dot" />
-                  <LeafSVG />
                 </div>
                 <div className="education__card glass-card">
                   <div className="glimmer-overlay" />
-                  <div className="education__badge">🏛️</div>
+                  
                   <div className="education__degree">
                     PhD in Economics
                   </div>
@@ -1052,11 +947,9 @@ export default function Home() {
               <div className="education__item">
                 <div className="edu-dot-container">
                   <div className="edu-dot" />
-                  <LeafSVG />
                 </div>
                 <div className="education__card glass-card">
                   <div className="glimmer-overlay" />
-                  <div className="education__badge">🏥</div>
                   <div className="education__degree">
                     MPhil in Public Health
                   </div>
@@ -1071,11 +964,9 @@ export default function Home() {
               <div className="education__item">
                 <div className="edu-dot-container">
                   <div className="edu-dot" />
-                  <LeafSVG />
                 </div>
                 <div className="education__card glass-card">
                   <div className="glimmer-overlay" />
-                  <div className="education__badge">📜</div>
                   <div className="education__degree">
                     MA in Economics
                   </div>
@@ -1090,11 +981,9 @@ export default function Home() {
               <div className="education__item">
                 <div className="edu-dot-container">
                   <div className="edu-dot" />
-                  <LeafSVG />
                 </div>
                 <div className="education__card glass-card">
                   <div className="glimmer-overlay" />
-                  <div className="education__badge">🏛️</div>
                   <div className="education__degree">
                     BA in Economics
                   </div>
@@ -1117,7 +1006,6 @@ export default function Home() {
             <div className="teaching__grid">
               <div className="teaching__card glass-card">
                 <div className="glimmer-overlay" />
-                <div className="teaching__badge">📈</div>
                 <div className="teaching__role">Macroeconomics</div>
                 <div className="teaching__institution">Teaching Assistant | IFMR-GSB, Krea University</div>
                 <div className="teaching__duration">Term 2, 2023, 2024</div>
@@ -1125,7 +1013,6 @@ export default function Home() {
 
               <div className="teaching__card glass-card">
                 <div className="glimmer-overlay" />
-                <div className="teaching__badge">🌐</div>
                 <div className="teaching__role">Global Economy and Business</div>
                 <div className="teaching__institution">Teaching Assistant | IFMR-GSB, Krea University</div>
                 <div className="teaching__duration">Term 3, 2022, 2023</div>
@@ -1133,7 +1020,6 @@ export default function Home() {
 
               <div className="teaching__card glass-card">
                 <div className="glimmer-overlay" />
-                <div className="teaching__badge">♟️</div>
                 <div className="teaching__role">Strategic Management</div>
                 <div className="teaching__institution">Teaching Assistant | IFMR-GSB, Krea University</div>
                 <div className="teaching__duration">Term 3, 2022, 2023</div>
@@ -1141,7 +1027,6 @@ export default function Home() {
 
               <div className="teaching__card glass-card">
                 <div className="glimmer-overlay" />
-                <div className="teaching__badge">💻</div>
                 <div className="teaching__role">Financial Technology</div>
                 <div className="teaching__institution">Teaching Assistant | IFMR-GSB, Krea University</div>
                 <div className="teaching__duration">Term 3, 2022</div>
@@ -1149,7 +1034,6 @@ export default function Home() {
 
               <div className="teaching__card glass-card">
                 <div className="glimmer-overlay" />
-                <div className="teaching__badge">🌿</div>
                 <div className="teaching__role">Sustainability and Finance</div>
                 <div className="teaching__institution">Teaching Assistant | IFMR-GSB, Krea University</div>
                 <div className="teaching__duration">Term 3, 2025</div>
@@ -1157,7 +1041,6 @@ export default function Home() {
 
               <div className="teaching__card glass-card">
                 <div className="glimmer-overlay" />
-                <div className="teaching__badge">📊</div>
                 <div className="teaching__role">Information System in Business</div>
                 <div className="teaching__institution">Teaching Assistant | IFMR-GSB, Krea University</div>
                 <div className="teaching__duration">Term 1, 2023, 2024</div>
@@ -1170,28 +1053,24 @@ export default function Home() {
           <div className="section__container">
             <div className="section__label">Recognition</div>
             <div className="section__title">Awards & Qualifications</div>
-            <div className="teaching__grid">
+            <div className="awards__grid">
               <div className="teaching__card glass-card">
                 <div className="glimmer-overlay" />
-                <div className="teaching__badge">🌱</div>
                 <div className="teaching__role">ESG Mentee Cohort</div>
                 <div className="teaching__institution">Earth System Governance Project (2026-2027)</div>
               </div>
               <div className="teaching__card glass-card">
                 <div className="glimmer-overlay" />
-                <div className="teaching__badge">🎖️</div>
                 <div className="teaching__role">UGC NET (Economics)</div>
                 <div className="teaching__institution">Junior Research Fellowship (2021)</div>
               </div>
               <div className="teaching__card glass-card">
                 <div className="glimmer-overlay" />
-                <div className="teaching__badge">📜</div>
                 <div className="teaching__role">Maharashtra SET</div>
                 <div className="teaching__institution">Assistant Professor Eligibility (2019)</div>
               </div>
               <div className="teaching__card glass-card">
                 <div className="glimmer-overlay" />
-                <div className="teaching__badge">🛡️</div>
                 <div className="teaching__role">Licentiate</div>
                 <div className="teaching__institution">Insurance Institute of India</div>
               </div>
@@ -1203,18 +1082,17 @@ export default function Home() {
           <div className="section__container">
             <div className="section__label">Expertise</div>
             <div className="section__title">Skills & Languages</div>
-            <div className="research__grid">
+            <div className="skills__grid">
               {[
-                { icon: "📊", badge: "🛠️", name: "Stata & R" },
-                { icon: "🗺️", badge: "🌍", name: "Geospatial Data (GIS)" },
-                { icon: "📈", badge: "📊", name: "Econometrics" },
-                { icon: "🎯", badge: "🧪", name: "Impact Evaluation" },
-                { icon: "🗣️", badge: "🇮🇳", name: "English, Hindi, Marathi" },
-                { icon: "🖋️", badge: "✍️", name: "Academic Writing" },
+                { name: "Stata & R" },
+                { name: "Geospatial Data (GIS)" },
+                { name: "Econometrics" },
+                { name: "Impact Evaluation" },
+                { name: "English, Hindi, Marathi" },
+                { name: "Academic Writing" },
               ].map((item) => (
                 <div className="research__item glass-card" key={item.name}>
                   <div className="glimmer-overlay" />
-                  <div className="skill__badge">{item.icon}</div>
                   <div className="research__name">{item.name}</div>
                 </div>
               ))}
@@ -1229,12 +1107,12 @@ export default function Home() {
             <div className="section__title">Research Interests</div>
             <div className="research__grid">
               {[
-                { icon: "🌍", name: "Environmental and Resource Economics" },
-                { icon: "💧", name: "Groundwater Governance & Institutions" },
-                { icon: "🌡️", name: "Climate Adaptation Policy" },
-                { icon: "🏛️", name: "Public Finance and Health" },
-                { icon: "📉", name: "Applied Causal Inference" },
-                { icon: "🏘️", name: "Institutions and Development" },
+                { name: "Environmental and Resource Economics" },
+                { name: "Groundwater Governance & Institutions" },
+                { name: "Climate Adaptation Policy" },
+                { name: "Public Finance and Health" },
+                { name: "Applied Causal Inference" },
+                { name: "Institutions and Development" },
               ].map((item) => (
                 <div className="research__item glass-card" key={item.name}>
                   <div className="water-table">
@@ -1242,7 +1120,6 @@ export default function Home() {
                     <div className="wave" />
                   </div>
                   <div className="glimmer-overlay" />
-                  <span className="research__icon">{item.icon}</span>
                   <div className="research__name">{item.name}</div>
                 </div>
               ))}
@@ -1259,18 +1136,18 @@ export default function Home() {
             <div className="causal-container">
               <div className="impact-nodes">
                 {[
-                  { id: "institutions", icon: <Gavel size={20} />, label: "Institutions" },
-                  { id: "resource", icon: <Droplets size={20} />, label: "Resources" },
-                  { id: "policy", icon: <Shield size={20} />, label: "Policy" },
-                  { id: "health", icon: <Stethoscope size={20} />, label: "Health" },
-                  { id: "finance", icon: <LineChart size={20} />, label: "Finance" },
+                  { id: "institutions", label: "Institutions", icon: <Gavel size={18} /> },
+                  { id: "resource", label: "Resources", icon: <Droplets size={18} /> },
+                  { id: "policy", label: "Policy", icon: <Shield size={18} /> },
+                  { id: "health", label: "Health", icon: <Stethoscope size={18} /> },
+                  { id: "finance", label: "Finance", icon: <LineChart size={18} /> },
                 ].map((node) => (
                   <div
                     key={node.id}
                     id={`accepted-node-${node.id}`}
                     className={`impact-node ${activeResearchId?.startsWith('accepted-') && activeNodes.includes(node.id) ? "active" : ""}`}
                   >
-                    {node.icon}
+                    <div className="impact-node__icon">{node.icon}</div>
                     <div className="impact-node__label">{node.label}</div>
                   </div>
                 ))}
@@ -1358,18 +1235,18 @@ export default function Home() {
             <div className="causal-container">
               <div className="impact-nodes">
                 {[
-                  { id: "institutions", icon: <Gavel size={20} />, label: "Institutions" },
-                  { id: "resource", icon: <Droplets size={20} />, label: "Resources" },
-                  { id: "policy", icon: <Shield size={20} />, label: "Policy" },
-                  { id: "health", icon: <Stethoscope size={20} />, label: "Health" },
-                  { id: "finance", icon: <LineChart size={20} />, label: "Finance" },
+                  { id: "institutions", label: "Institutions", icon: <Gavel size={18} /> },
+                  { id: "resource", label: "Resources", icon: <Droplets size={18} /> },
+                  { id: "policy", label: "Policy", icon: <Shield size={18} /> },
+                  { id: "health", label: "Health", icon: <Stethoscope size={18} /> },
+                  { id: "finance", label: "Finance", icon: <LineChart size={18} /> },
                 ].map((node) => (
                   <div
                     key={node.id}
                     id={`presented-node-${node.id}`}
                     className={`impact-node ${activeResearchId?.startsWith('presented-') && activeNodes.includes(node.id) ? "active" : ""}`}
                   >
-                    {node.icon}
+                    <div className="impact-node__icon">{node.icon}</div>
                     <div className="impact-node__label">{node.label}</div>
                   </div>
                 ))}
@@ -1443,11 +1320,9 @@ export default function Home() {
               <div className="education__item">
                 <div className="edu-dot-container">
                   <div className="edu-dot" />
-                  <LeafSVG />
                 </div>
                 <div className="education__card glass-card">
                   <div className="glimmer-overlay" />
-                  <div className="education__badge">⚖️</div>
                   <div className="education__degree">Workshop on Building Ideas About Justice in Policy Research</div>
                   <div className="education__institution">IIT Tirupati</div>
                   <div className="education__duration">2023</div>
@@ -1457,11 +1332,9 @@ export default function Home() {
               <div className="education__item">
                 <div className="edu-dot-container">
                   <div className="edu-dot" />
-                  <LeafSVG />
                 </div>
                 <div className="education__card glass-card">
                   <div className="glimmer-overlay" />
-                  <div className="education__badge">🔢</div>
                   <div className="education__degree">Workshop on Data Science Perspectives</div>
                   <div className="education__institution">IFMR–Krea University</div>
                   <div className="education__duration">2022</div>
@@ -1471,11 +1344,9 @@ export default function Home() {
               <div className="education__item">
                 <div className="edu-dot-container">
                   <div className="edu-dot" />
-                  <LeafSVG />
                 </div>
                 <div className="education__card glass-card">
                   <div className="glimmer-overlay" />
-                  <div className="education__badge">❄️</div>
                   <div className="education__degree">Winter School</div>
                   <div className="education__institution">Delhi School of Economics, University of Delhi</div>
                   <div className="education__duration">2021 (Virtual)</div>
@@ -1485,11 +1356,9 @@ export default function Home() {
               <div className="education__item">
                 <div className="edu-dot-container">
                   <div className="edu-dot" />
-                  <LeafSVG />
                 </div>
                 <div className="education__card glass-card">
                   <div className="glimmer-overlay" />
-                  <div className="education__badge">🦠</div>
                   <div className="education__degree">Online Workshop on Economics of Pandemics</div>
                   <div className="education__institution">University of Warwick & Meghnad Desai Academy</div>
                   <div className="education__duration">2021</div>
@@ -1508,18 +1377,18 @@ export default function Home() {
             <div className="causal-container">
               <div className="impact-nodes">
                 {[
-                  { id: "institutions", icon: <Gavel size={20} />, label: "Institutions" },
-                  { id: "resource", icon: <Droplets size={20} />, label: "Resources" },
-                  { id: "policy", icon: <Shield size={20} />, label: "Policy" },
-                  { id: "health", icon: <Stethoscope size={20} />, label: "Health" },
-                  { id: "finance", icon: <LineChart size={20} />, label: "Finance" },
+                  { id: "institutions", label: "Institutions", icon: <Gavel size={18} /> },
+                  { id: "resource", label: "Resources", icon: <Droplets size={18} /> },
+                  { id: "policy", label: "Policy", icon: <Shield size={18} /> },
+                  { id: "health", label: "Health", icon: <Stethoscope size={18} /> },
+                  { id: "finance", label: "Finance", icon: <LineChart size={18} /> },
                 ].map((node) => (
                   <div
                     key={node.id}
                     id={`causal-node-${node.id}`}
                     className={`impact-node ${(!activeResearchId?.includes('accepted') && !activeResearchId?.includes('presented')) && activeNodes.includes(node.id) ? "active" : ""}`}
                   >
-                    {node.icon}
+                    <div className="impact-node__icon">{node.icon}</div>
                     <div className="impact-node__label">{node.label}</div>
                   </div>
                 ))}
@@ -1569,62 +1438,102 @@ export default function Home() {
                     <div className="pub__year">2024</div>
                   </div>
 
-                  <div className="pub__category">Doctoral Research</div>
-                  {[
-                    {
-                      title: "Colonial Institutions and the Historical Roots of Groundwater Extraction Patterns in India",
-                      desc: "Collaborative research with Dr. Soumya Pal",
-                      impact: ["institutions", "resource"]
-                    },
-                    {
-                      title: "Governance, Institutions, and Groundwater Outcomes: A Mixed-Methods Evaluation of Atal Bhujal Yojana in Sinnar",
-                      desc: "Collaborative research with Dr. Soumya Pal and Dr. Veena Srinivasan",
-                      impact: ["institutions", "policy"]
-                    },
-                    {
-                      title: "Evolution of Groundwater Policy in Water-Scarce Regions: A Global Literature Review",
-                      desc: "Comprehensive review of global groundwater management strategies",
-                      impact: ["policy", "resource"]
-                    },
-                    {
-                      title: "Does the fiscal position of States matter in the allocation of climate adaptation funds in India?",
-                      desc: "Analyzing State-level climate fund allocations",
-                      impact: ["finance", "policy"]
-                    },
-                    {
-                      title: "Miles to Go: A systematic literature review of gender pay gaps in India",
-                      desc: "Collaborative work with Dr. Pallavi Pandey",
-                      impact: ["institutions", "policy"]
-                    },
-                    {
-                      title: "Groundwater Depletion and Institutions: Exploring the Colonial Origin",
-                      desc: "Collaborative research with Dr. Soumya Pal",
-                      impact: ["institutions", "resource"]
-                    },
-                    {
-                      title: "Impact of Fiscal Transfers on Public Spending on Health in Maharashtra",
-                      desc: "Analyzing health sector fiscal dynamics",
-                      impact: ["health", "policy", "finance"]
-                    },
-                  ].map((res, idx) => (
-                    <div
-                      id={`causal-pub-ongoing-${idx}`}
-                      className="pub__item glass-card"
-                      key={res.title}
-                      onMouseEnter={() => {
-                        setActiveResearchId(`causal-pub-ongoing-${idx}`);
-                        setActiveNodes(res.impact);
-                      }}
-                      onMouseLeave={() => {
-                        setActiveResearchId(null);
-                        setActiveNodes([]);
-                      }}
-                    >
-                      <div className="glimmer-overlay" />
-                      <div className="pub__title">{res.title}</div>
-                      <div className="pub__desc" style={{ fontSize: '0.8rem', color: 'var(--accent-orange)', marginTop: '0.2rem' }}>{res.desc}</div>
-                    </div>
-                  ))}
+                  {/* <div className="pub__category">Doctoral Research</div> */}
+                  {(() => {
+                    const researchItems = [
+                      {
+                        title: "Colonial Institutions and the Historical Roots of Groundwater Extraction Patterns in India",
+                        desc: "Collaborative research with Dr. Soumya Pal",
+                        impact: ["institutions", "resource"]
+                      },
+                      {
+                        title: "Governance, Institutions, and Groundwater Outcomes: A Mixed-Methods Evaluation of Atal Bhujal Yojana in Sinnar",
+                        desc: "Collaborative research with Dr. Soumya Pal and Dr. Veena Srinivasan",
+                        impact: ["institutions", "policy"]
+                      },
+                      {
+                        title: "Evolution of Groundwater Policy in Water-Scarce Regions: A Global Literature Review",
+                        desc: "Comprehensive review of global groundwater management strategies",
+                        impact: ["policy", "resource"]
+                      },
+                      {
+                        title: "Does the fiscal position of States matter in the allocation of climate adaptation funds in India?",
+                        desc: "Analyzing State-level climate fund allocations",
+                        impact: ["finance", "policy"]
+                      },
+                      {
+                        title: "Miles to Go: A systematic literature review of gender pay gaps in India",
+                        desc: "Collaborative work with Dr. Pallavi Pandey",
+                        impact: ["institutions", "policy"]
+                      },
+                      {
+                        title: "Groundwater Depletion and Institutions: Exploring the Colonial Origin",
+                        desc: "Collaborative research with Dr. Soumya Pal",
+                        impact: ["institutions", "resource"]
+                      },
+                      {
+                        title: "Impact of Fiscal Transfers on Public Spending on Health in Maharashtra",
+                        desc: "Analyzing health sector fiscal dynamics",
+                        impact: ["health", "policy", "finance"]
+                      },
+                    ];
+
+                    const doctoralItems = researchItems.filter(item => item.desc.toLowerCase().includes("soumya pal"));
+                    const independentItems = researchItems.filter(item => !item.desc.toLowerCase().includes("soumya pal"));
+
+                    return (
+                      <>
+                        {doctoralItems.length > 0 && (
+                          <>
+                            <div className="pub__category" style={{ marginTop: '2rem' }}>Doctoral Research</div>
+                            {doctoralItems.map((res, idx) => (
+                              <div
+                                id={`causal-pub-ongoing-doc-${idx}`}
+                                className="pub__item glass-card"
+                                key={res.title}
+                                onMouseEnter={() => {
+                                  setActiveResearchId(`causal-pub-ongoing-doc-${idx}`);
+                                  setActiveNodes(res.impact);
+                                }}
+                                onMouseLeave={() => {
+                                  setActiveResearchId(null);
+                                  setActiveNodes([]);
+                                }}
+                              >
+                                <div className="glimmer-overlay" />
+                                <div className="pub__title">{res.title}</div>
+                                <div className="pub__desc" style={{ fontSize: '0.8rem', color: 'var(--accent-orange)', marginTop: '0.2rem' }}>{res.desc}</div>
+                              </div>
+                            ))}
+                          </>
+                        )}
+                        {independentItems.length > 0 && (
+                          <>
+                            <div className="pub__category" style={{ marginTop: '2.5rem' }}>Independent Studies</div>
+                            {independentItems.map((res, idx) => (
+                              <div
+                                id={`causal-pub-ongoing-ind-${idx}`}
+                                className="pub__item glass-card"
+                                key={res.title}
+                                onMouseEnter={() => {
+                                  setActiveResearchId(`causal-pub-ongoing-ind-${idx}`);
+                                  setActiveNodes(res.impact);
+                                }}
+                                onMouseLeave={() => {
+                                  setActiveResearchId(null);
+                                  setActiveNodes([]);
+                                }}
+                              >
+                                <div className="glimmer-overlay" />
+                                <div className="pub__title">{res.title}</div>
+                                <div className="pub__desc" style={{ fontSize: '0.8rem', color: 'var(--accent-orange)', marginTop: '0.2rem' }}>{res.desc}</div>
+                              </div>
+                            ))}
+                          </>
+                        )}
+                      </>
+                    );
+                  })()}
                 </div>
               </div>
             </div>
@@ -1719,10 +1628,7 @@ export default function Home() {
               className="footer__icon"
               aria-label="Email"
             >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="2" y="4" width="20" height="16" rx="2" />
-                <path d="M22 7l-10 7L2 7" />
-              </svg>
+              Email
             </a>
           </div>
           <p className="footer__copy">
@@ -1735,3 +1641,7 @@ export default function Home() {
     </>
   );
 }
+
+
+
+
