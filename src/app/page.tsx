@@ -4,165 +4,63 @@ import { useRef, useState, useEffect } from "react";
 import Image from "next/image";
 import { Gavel, Droplets, Shield, Stethoscope, LineChart } from "lucide-react";
 
-/* ── ROOTS & BRANCHES INTRO ANIMATION ── */
-function RootsBranchesIntro({ onComplete }: { onComplete: () => void }) {
-  const svgRef = useRef<SVGSVGElement>(null);
+/* ── FRAME ANIMATION INTRO ── */
+function FrameAnimationIntro({ onComplete }: { onComplete: () => void }) {
+  const [frameIndex, setFrameIndex] = useState(1);
+  const totalFrames = 84;
+  const frameRate = 18;
+  const [imagesLoaded, setImagesLoaded] = useState(false);
+  const [fading, setFading] = useState(false);
 
   useEffect(() => {
-    const svg = svgRef.current;
-    if (!svg) return;
+    const preloadCount = 10;
+    let loaded = 0;
+    for (let i = 1; i <= preloadCount; i++) {
+      const img = new (window as any).Image();
+      img.src = `/mughda_animation/ezgif-frame-${String(i).padStart(3, '0')}.png`;
+      img.onload = () => {
+        loaded++;
+        if (loaded === preloadCount) setImagesLoaded(true);
+      };
+    }
+  }, []);
 
-    // Animate each branch path using stroke-dashoffset
-    const paths = svg.querySelectorAll<SVGPathElement>(".branch-path");
-    paths.forEach((path) => {
-      const length = path.getTotalLength();
-      path.style.strokeDasharray = `${length}`;
-      path.style.strokeDashoffset = `${length}`;
-    });
+  useEffect(() => {
+    if (!imagesLoaded) return;
 
-    const keywords = svg.querySelectorAll<SVGTextElement>(".branch-keyword");
-    keywords.forEach((kw) => { kw.style.opacity = "0"; });
-
-    const nameEl = document.querySelector<HTMLElement>(".intro-name");
-    const nameLeaves = document.querySelectorAll<HTMLElement>(".intro-leaf");
-    const overlay = document.querySelector<HTMLElement>(".intro-overlay");
-    if (nameEl) nameEl.style.opacity = "0";
-    nameLeaves.forEach(l => { l.style.opacity = "0"; l.style.transform = "scale(0) rotate(0deg)"; });
-
-    let t = 0;
-
-    // Animate branches one by one with CSS transition approach
-    const animateBranch = (pathIndex: number, keywordIndex: number | null, colorClass: string | null, delay: number) => {
-      setTimeout(() => {
-        const path = paths[pathIndex];
-        if (!path) return;
-        path.style.transition = "stroke-dashoffset 1.2s cubic-bezier(0.4, 0, 0.2, 1)";
-        path.style.strokeDashoffset = "0";
-
-        // Show keyword after branch draws
-        if (keywordIndex !== null && colorClass) {
-          setTimeout(() => {
-            const kw = keywords[keywordIndex];
-            if (kw) {
-              kw.style.opacity = "1";
-              kw.classList.add(colorClass);
-            }
-          }, 900);
+    const interval = setInterval(() => {
+      setFrameIndex((prev) => {
+        if (prev >= totalFrames) {
+          clearInterval(interval);
+          // Start fade-out, then call onComplete after transition
+          setFading(true);
+          setTimeout(onComplete, 900);
+          return prev;
         }
-      }, delay);
-    };
-
-    // Staggered branch animations
-    animateBranch(0, null, null, 400);            // 0: Trunk (no keyword)
-    animateBranch(1, 0, "glow-green", 1200);     // 1: Economics
-    animateBranch(2, 1, "glow-green", 2000);     // 2: Governance
-    animateBranch(3, 2, "glow-orange", 2800);    // 3: Policy
-    animateBranch(4, 3, "glow-orange", 3600);    // 4: Impact
-
-    // Bloom name after branches complete
-    setTimeout(() => {
-      if (nameEl) {
-        nameEl.style.transition = "opacity 1s ease, transform 1s cubic-bezier(0.175, 0.885, 0.32, 1.275)";
-        nameEl.style.opacity = "1";
-        nameEl.style.transform = "translateY(0) scale(1)";
-      }
-      nameLeaves.forEach((leaf, i) => {
-        setTimeout(() => {
-          leaf.style.transition = "opacity 0.6s ease, transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275)";
-          leaf.style.opacity = "1";
-          leaf.style.transform = `scale(1) rotate(${[-30, 30, -20, 20, -40][i] ?? 0}deg) translateY(-10px)`;
-        }, i * 120);
+        return prev + 1;
       });
-    }, 5000);
+    }, 1000 / frameRate);
 
-    // Fade out and complete
-    setTimeout(() => {
-      if (overlay) {
-        overlay.style.transition = "opacity 1s ease";
-        overlay.style.opacity = "0";
-      }
-      setTimeout(onComplete, 1000);
-    }, 7000);
-
-    return () => {};
-  }, [onComplete]);
+    return () => clearInterval(interval);
+  }, [imagesLoaded, onComplete]);
 
   return (
-    <div className="intro-overlay">
-      {/* Animated SVG branches */}
-      <svg
-        ref={svgRef}
-        className="intro-svg"
-        viewBox="0 0 800 600"
-        preserveAspectRatio="xMidYMid meet"
-      >
-        {/* Seed at center */}
-        <circle cx="400" cy="420" r="8" fill="#2d5a27" className="intro-seed" />
-        <circle cx="400" cy="420" r="16" fill="none" stroke="#22c55e" strokeWidth="1" opacity="0.4" className="intro-seed-ring" />
-
-        {/* Trunk — grows upward */}
-        <path
-          className="branch-path"
-          d="M 400 420 C 400 380, 398 340, 400 280"
-          stroke="#2d5a27" strokeWidth="3" fill="none" strokeLinecap="round"
+    <div
+      className="intro-overlay"
+      style={{
+        opacity: fading ? 0 : 1,
+        transition: fading ? 'opacity 0.8s ease-out' : 'none',
+      }}
+    >
+      <div className="intro-frame-container">
+        <Image
+          src={`/mughda_animation/ezgif-frame-${String(frameIndex).padStart(3, '0')}.png`}
+          alt="Intro Frame"
+          fill
+          priority
+          className="intro-frame-image"
+          style={{ objectFit: 'cover' }}
         />
-
-        {/* Branch left — Economics */}
-        <path
-          className="branch-path"
-          d="M 400 350 C 370 330, 300 320, 240 290"
-          stroke="#2d5a27" strokeWidth="3" fill="none" strokeLinecap="round"
-        />
-        <text className="branch-keyword" x="140" y="285" fill="#2d5a27">Economics</text>
-
-        {/* Branch right — Governance */}
-        <path
-          className="branch-path"
-          d="M 400 320 C 430 300, 490 290, 550 265"
-          stroke="#2d5a27" strokeWidth="3" fill="none" strokeLinecap="round"
-        />
-        <text className="branch-keyword" x="556" y="260" fill="#2d5a27">Governance</text>
-
-        {/* Branch far left — Policy */}
-        <path
-          className="branch-path"
-          d="M 400 300 C 360 270, 290 250, 210 220"
-          stroke="#2d5a27" strokeWidth="2" fill="none" strokeLinecap="round"
-        />
-        <text className="branch-keyword" x="100" y="215" fill="#e07b39">Policy</text>
-
-        {/* Branch far right — Impact */}
-        <path
-          className="branch-path"
-          d="M 400 290 C 450 260, 520 240, 590 210"
-          stroke="#2d5a27" strokeWidth="2" fill="none" strokeLinecap="round"
-        />
-        <text className="branch-keyword" x="596" y="205" fill="#e07b39">Impact</text>
-
-        {/* Small twig leaves across branches */}
-        {[
-          { cx: 240, cy: 288, r: 4 }, { cx: 550, cy: 263, r: 4 },
-          { cx: 210, cy: 218, r: 3 }, { cx: 590, cy: 208, r: 3 },
-          { cx: 310, cy: 308, r: 3 }, { cx: 480, cy: 278, r: 3 },
-        ].map((lf, i) => (
-          <ellipse key={i} cx={lf.cx} cy={lf.cy} rx={lf.r * 1.8} ry={lf.r} fill="#22c55e" opacity="0.6"
-            transform={`rotate(${[-20, 20, -30, 30, -10, 10][i] ?? 0} ${lf.cx} ${lf.cy})`}
-          />
-        ))}
-      </svg>
-
-      {/* Blooming name at top */}
-      <div className="intro-name-wrap">
-        {/* Decorative leaves around name */}
-        {[...Array(5)].map((_, i) => (
-          <svg key={i} className="intro-leaf" width="22" height="22" viewBox="0 0 24 24" fill="#22c55e">
-            <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8a13 13 0 0 1-10 10Z" />
-          </svg>
-        ))}
-        <div className="intro-name" style={{ transform: "translateY(20px) scale(0.9)" }}>
-          <div className="intro-name__main">Mugdha Kinhikar</div>
-          <div className="intro-name__title">PhD Researcher in Economics</div>
-        </div>
       </div>
     </div>
   );
@@ -219,16 +117,23 @@ export default function Home() {
   const locoScrollRef = useRef<any>(null);
 
   useEffect(() => {
+    if (showIntro) return; // Wait until intro is done and main content is mounted
+
     /* Wait for GSAP + Locomotive CDN scripts to load */
     const waitForLibs = setInterval(() => {
       if (window.gsap && window.ScrollTrigger && window.LocomotiveScroll) {
         clearInterval(waitForLibs);
-        initSite();
+        // Small timeout to ensure DOM is painted
+        setTimeout(() => {
+          initSite();
+          // Force a ScrollTrigger refresh after elements are initialized
+          window.ScrollTrigger.refresh();
+        }, 50);
       }
     }, 100);
 
     return () => clearInterval(waitForLibs);
-  }, []);
+  }, [showIntro]);
 
   function initSite() {
     const gsap = window.gsap;
@@ -800,14 +705,18 @@ export default function Home() {
   return (
     <>
       {showIntro && (
-        <RootsBranchesIntro onComplete={() => setShowIntro(false)} />
+        <FrameAnimationIntro onComplete={() => setShowIntro(false)} />
       )}
+
+      {/* Main content fades in after intro completes */}
+      {!showIntro && (
+        <>
 
 
       {/* ============================
           NAVIGATION
           ============================ */}
-      <nav className="nav">
+      <nav className="nav" style={{ opacity: 0, animation: 'fadeInPage 0.8s ease-out 0.1s forwards' }}>
         <div className="nav__logo">
           M<span>.</span> Kinhikar
         </div>
@@ -845,6 +754,7 @@ export default function Home() {
         className="main-content"
         ref={scrollContainerRef}
         data-scroll-container
+        style={{ opacity: 0, animation: 'fadeInPage 0.8s ease-out 0.2s forwards' }}
       >
         {/* ── HERO ── */}
         <section className="hero" id="hero" data-scroll-section>
@@ -1552,11 +1462,6 @@ export default function Home() {
               <p>
                 Exploring the effects of institutional quality on groundwater outcomes and the colonial origins of groundwater depletion.
               </p>
-              <ul className="about__list" style={{ marginTop: '1rem' }}>
-                <li>Conducted cross-country empirical analysis using GLDAS geospatial and climate datasets.</li>
-                <li>Applied advanced econometric methods (2SLS framework) for causal inference.</li>
-                <li>Specialised in impact evaluation and policy-relevant research.</li>
-              </ul>
             </div>
           </div>
         </section>
@@ -1638,6 +1543,8 @@ export default function Home() {
 
         </footer>
       </div>
+        </>
+      )}
     </>
   );
 }
