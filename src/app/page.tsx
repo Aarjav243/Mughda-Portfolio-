@@ -6,43 +6,103 @@ import { Gavel, Droplets, Shield, Stethoscope, LineChart } from "lucide-react";
 
 /* ── FRAME ANIMATION INTRO ── */
 function FrameAnimationIntro({ onComplete }: { onComplete: () => void }) {
-  const [frameIndex, setFrameIndex] = useState(1);
-  const totalFrames = 84;
-  const frameRate = 18;
-  const [imagesLoaded, setImagesLoaded] = useState(false);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const [fading, setFading] = useState(false);
 
   useEffect(() => {
-    const preloadCount = 10;
-    let loaded = 0;
-    for (let i = 1; i <= preloadCount; i++) {
-      const img = new (window as any).Image();
-      img.src = `/mughda_animation/ezgif-frame-${String(i).padStart(3, '0')}.png`;
-      img.onload = () => {
-        loaded++;
-        if (loaded === preloadCount) setImagesLoaded(true);
-      };
+    const totalFrames = 84;
+    const frameRate = 18;
+    const images: HTMLImageElement[] = [];
+    let loadedCount = 0;
+    let frameIndex = 1;
+    let animationRef: number;
+    let lastTime = 0;
+    let hasStarted = false;
+
+    // Drawing logic
+    const drawFrame = (index: number) => {
+      const canvas = canvasRef.current;
+      const ctx = canvas?.getContext('2d');
+      // Arrays are 0-indexed, frameIndex is 1-indexed
+      const img = images[index - 1]; 
+      if (!canvas || !ctx || !img) return;
+
+      // Sync canvas internal resolution with CSS display size
+      const { width, height } = canvas.parentElement!.getBoundingClientRect();
+      if (canvas.width !== width || canvas.height !== height) {
+        // Boost resolution slightly for retina displays
+        const dpr = window.devicePixelRatio || 1;
+        canvas.width = width * dpr;
+        canvas.height = height * dpr;
+        ctx.scale(dpr, dpr);
+      }
+
+      const hRatio = width / img.width;
+      const vRatio = height / img.height;
+      
+      // Use 'contain' on mobile to show full laptop, 'cover' on desktop
+      const isMobile = width <= 768;
+      const ratio = isMobile ? Math.min(hRatio, vRatio) : Math.max(hRatio, vRatio);
+      
+      const centerShift_x = (width - img.width * ratio) / 2;
+      const centerShift_y = (height - img.height * ratio) / 2;  
+
+      ctx.clearRect(0, 0, width, height);
+      ctx.drawImage(img, 0, 0, img.width, img.height,
+                    centerShift_x, centerShift_y, img.width * ratio, img.height * ratio);
+    };
+
+    // Preload all frames into memory
+    for (let i = 1; i <= totalFrames; i++) {
+        const img = new (window as any).Image();
+        img.src = `/mughda_animation/ezgif-frame-${String(i).padStart(3, '0')}.png`;
+        img.onload = () => {
+            loadedCount++;
+            if (loadedCount === 1) {
+                // Ensure first frame is drawn immediately while others load
+                drawFrame(1);
+            }
+            // Buffer ~15 frames before starting the animation loop to ensure smooth playback
+            if (loadedCount > 15 && !hasStarted) {
+                hasStarted = true;
+                animationRef = requestAnimationFrame(play);
+            }
+        };
+        images.push(img);
     }
-  }, []);
 
-  useEffect(() => {
-    if (!imagesLoaded) return;
+    const play = (time: number) => {
+      if (!lastTime) lastTime = time;
+      const elapsed = time - lastTime;
+      const fpsInterval = 1000 / frameRate;
 
-    const interval = setInterval(() => {
-      setFrameIndex((prev) => {
-        if (prev >= totalFrames) {
-          clearInterval(interval);
-          // Start fade-out, then call onComplete after transition
-          setFading(true);
-          setTimeout(onComplete, 900);
-          return prev;
+      if (elapsed > fpsInterval) {
+        lastTime = time - (elapsed % fpsInterval);
+        drawFrame(frameIndex);
+        
+        if (frameIndex >= totalFrames) {
+            setFading(true);
+            setTimeout(onComplete, 900);
+            return; // Stop animation loop
         }
-        return prev + 1;
-      });
-    }, 1000 / frameRate);
+        
+        // Only advance frame index if the next frame has finished downloading
+        if (images[frameIndex]?.complete) {
+            frameIndex++;
+        }
+      }
+      animationRef = requestAnimationFrame(play);
+    };
 
-    return () => clearInterval(interval);
-  }, [imagesLoaded, onComplete]);
+    // Cleanup
+    const handleResize = () => drawFrame(frameIndex);
+    window.addEventListener('resize', handleResize);
+    
+    return () => {
+        if (animationRef) cancelAnimationFrame(animationRef);
+        window.removeEventListener('resize', handleResize);
+    }
+  }, [onComplete]);
 
   return (
     <div
@@ -50,16 +110,16 @@ function FrameAnimationIntro({ onComplete }: { onComplete: () => void }) {
       style={{
         opacity: fading ? 0 : 1,
         transition: fading ? 'opacity 0.8s ease-out' : 'none',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#fdfaf5' /* Matches site background so borders blend on mobile */
       }}
     >
-      <div className="intro-frame-container">
-        <Image
-          src={`/mughda_animation/ezgif-frame-${String(frameIndex).padStart(3, '0')}.png`}
-          alt="Intro Frame"
-          fill
-          priority
-          className="intro-frame-image"
-          style={{ objectFit: 'cover' }}
+      <div className="intro-frame-container" style={{ width: '100%', height: '100%', position: 'relative' }}>
+        <canvas 
+          ref={canvasRef} 
+          style={{ width: '100%', height: '100%', display: 'block' }} 
         />
       </div>
     </div>
