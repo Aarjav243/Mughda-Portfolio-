@@ -778,7 +778,7 @@ export default function Home() {
           ============================ */}
       <nav className="nav" style={{ opacity: 0, animation: 'fadeInPage 0.8s ease-out 0.1s forwards' }}>
         <div className="nav__logo">
-          M<span>.</span> Kinhikar
+          Mugdha
         </div>
         <ul className="nav__links">
           <li><a href="#about" onClick={(e) => handleNavClick(e, "#about")}>About</a></li>
