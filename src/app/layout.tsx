@@ -8,7 +8,58 @@ import Script from "next/script";
 export const metadata: Metadata = {
   title: "Mugdha Kinhikar | PhD Researcher in Economics",
   description:
-    "Academic portfolio of Mugdha Kinhikar — PhD Researcher specializing in Environmental Economics, Groundwater Governance, and Public Policy.",
+    "Official academic portfolio of Mugdha Kinhikar — PhD Researcher at IFMR-GSB, Krea University. Specialising in Environmental Economics, Groundwater Governance, Institutional Analysis, and Public Policy.",
+  keywords: [
+    "Mugdha Kinhikar",
+    "PhD Researcher Economics",
+    "Environmental Economics",
+    "Groundwater Governance",
+    "Resource Economics",
+    "Public Policy",
+    "Applied Causal Inference",
+    "Krea University",
+    "IFMR-GSB",
+    "Climate Adaptation Policy",
+    "Colonial Origins Groundwater",
+    "Impact Evaluation",
+  ],
+  authors: [{ name: "Mugdha Kinhikar" }],
+  creator: "Mugdha Kinhikar",
+  openGraph: {
+    type: "website",
+    locale: "en_IN",
+    url: "https://phd-mugdha-portfolio.vercel.app/",
+    title: "Mugdha Kinhikar | PhD Researcher in Economics",
+    description:
+      "Official academic portfolio of Mugdha Kinhikar — PhD Researcher at IFMR-GSB, Krea University. Specialising in Environmental Economics and Groundwater Governance.",
+    siteName: "Mugdha Kinhikar Portfolio",
+    images: [
+      {
+        url: "https://phd-mugdha-portfolio.vercel.app/profile-photo.jpg",
+        width: 1200,
+        height: 630,
+        alt: "Mugdha Kinhikar — PhD Researcher in Economics",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Mugdha Kinhikar | PhD Researcher in Economics",
+    description:
+      "Official academic portfolio of Mugdha Kinhikar — PhD Researcher at IFMR-GSB, Krea University.",
+    images: ["https://phd-mugdha-portfolio.vercel.app/profile-photo.jpg"],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
 };
 
 export default function RootLayout({

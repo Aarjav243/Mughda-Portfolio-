@@ -762,8 +762,38 @@ export default function Home() {
     };
   });
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    name: "Mugdha Kinhikar",
+    jobTitle: "PhD Researcher in Economics",
+    affiliation: {
+      "@type": "CollegeOrUniversity",
+      name: "IFMR-GSB, Krea University",
+    },
+    url: "https://phd-mugdha-portfolio.vercel.app/",
+    image: "https://phd-mugdha-portfolio.vercel.app/profile-photo.jpg",
+    email: "mugdha.kinhikar.phd22@krea.ac.in",
+    sameAs: ["https://www.linkedin.com/in/mugdha-kinhikar/"],
+    description:
+      "PhD Researcher specialising in Environmental Economics, Groundwater Governance, Institutional Analysis, and Public Policy at IFMR-GSB, Krea University.",
+    knowsAbout: [
+      "Environmental Economics",
+      "Groundwater Governance",
+      "Resource Economics",
+      "Applied Causal Inference",
+      "Climate Adaptation Policy",
+      "Public Policy",
+      "Impact Evaluation",
+    ],
+  };
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       {showIntro && (
         <FrameAnimationIntro onComplete={() => setShowIntro(false)} />
       )}
