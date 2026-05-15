@@ -35,7 +35,7 @@ export const metadata: Metadata = {
     siteName: "Mugdha Kinhikar Portfolio",
     images: [
       {
-        url: "https://phd-mugdha-portfolio.vercel.app/profile-photo.jpg",
+        url: "https://phd-mugdha-portfolio.vercel.app/mugdha-kinhikar-og.jpg",
         width: 1200,
         height: 630,
         alt: "Mugdha Kinhikar — PhD Researcher in Economics",
@@ -47,7 +47,7 @@ export const metadata: Metadata = {
     title: "Mugdha Kinhikar | PhD Researcher in Economics",
     description:
       "Official academic portfolio of Mugdha Kinhikar — PhD Researcher at IFMR-GSB, Krea University.",
-    images: ["https://phd-mugdha-portfolio.vercel.app/profile-photo.jpg"],
+    images: ["https://phd-mugdha-portfolio.vercel.app/mugdha-kinhikar-og.jpg"],
   },
   robots: {
     index: true,
